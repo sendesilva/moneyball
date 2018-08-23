@@ -99,5 +99,5 @@ galton_heights %>%
 
 # there is a second regression line if want to calculate the fathers height 
 # given the sons'
-m <- r * s_x/s_y
-b <- mu_x - m*mu_y
+m <- r * s_x/s_y # [1] 0.4986676
+b <- mu_x - m*mu_y # [1] 33.96539
