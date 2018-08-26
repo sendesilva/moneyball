@@ -55,6 +55,7 @@ Teams <- Teams %>% filter(yearID %in% 1961:2001) %>%
 fit <- lm(R_per_game ~ HR_per_game + BB_per_game, data = Teams)
 fit
 
+## Return to galton_heights
 # LSE are random variables - use monte carlo to 1000 samples size 50
 B <- 1000
 N <- 50
@@ -76,3 +77,64 @@ sample_n(galton_heights, N, replace = TRUE) %>%
 
 # compare with std errors from monte carlo sim
 lse %>% summarise(se_0 = sd(beta_0), se_1 = sd(beta_1))
+
+# advanced note on LSE - LSE can be strongly correlated
+lse %>% summarise(cor(beta_0, beta_1)) # -0.99
+
+# review with standardized father heights:
+B <- 1000
+N <- 50
+lse <- replicate(B, {
+  sample_n(galton_heights, N, replace = TRUE) %>%
+    mutate(father = father - mean(father)) %>%
+    lm(son ~ father, data = .) %>% .$coef
+})
+cor(lse[1,], lse[2,]) # -0.18
+
+# depicting confidence intervals using geom_smooth
+galton_heights %>% ggplot(aes(son, father)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+
+# using function predict
+galton_heights %>%
+  mutate(Y_hat = predict(lm(son ~ father, data = .))) %>%
+  ggplot(aes(father, Y_hat)) +
+  geom_line()
+
+# predict function can also provide std errors and other info needed to 
+# produce confidence intervals
+fit <- galton_heights %>% lm(son ~ father, data = .)
+Y_hat <- predict(fit, se.fit = TRUE)
+names(Y_hat) # [1] "fit"            "se.fit"         "df"             "residual.scale"
+
+# testing 2.3.5 quiz Qs - for properly plotting predictions and CLs for 
+# of linear model for son's heights
+
+# galton_heights %>% ggplot(aes(father, son)) +
+#   geom_point() +
+#   geom_smooth() # does not plot linear model
+
+# galton_heights %>% ggplot(aes(father, son)) +
+#   geom_point() +
+#   geom_smooth(method = "lm") # good
+
+# model <- lm(son ~ father, data = galton_heights)
+# predictions <- predict(model, interval = c("confidence"), level = 0.95)
+# data <- as_tibble(predictions) %>% bind_cols(father = galton_heights$father)
+# # change as.tibble to as_tibble
+# ggplot(data, aes(x = father, y = fit)) +
+#   geom_line(color = "blue", size = 1) + 
+#   geom_ribbon(aes(ymin=lwr, ymax=upr), alpha=0.2) + 
+#   geom_point(data = galton_heights, aes(x = father, y = son)) # good with as_tibble
+
+# model <- lm(son ~ father, data = galton_heights)
+# predictions <- predict(model)
+# data <- as.tibble(predictions) %>% bind_cols(father = galton_heights$father)
+# 
+# ggplot(data, aes(x = father, y = fit)) +
+#   geom_line(color = "blue", size = 1) + 
+#   geom_point(data = galton_heights, aes(x = father, y = son)) # no CLs
+
+
+
