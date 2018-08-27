@@ -38,7 +38,6 @@ coefs
 
 # testing accuracy of model by predicting 2002 for the various teams and comparing
 # with actual 2002 data which have not been using in fitting the model
-
 Teams %>%
   filter(yearID %in% 2002) %>%
   mutate(BB = BB/G,
@@ -89,7 +88,7 @@ players <- Salaries %>%
   filter(yearID == 2002) %>%
   select(playerID, salary) %>%
   right_join(players, by="playerID")
- 
+
 # add defensive position
 players <- Fielding %>% filter(yearID == 2002) %>%
   filter(!POS %in% c("OF","P")) %>%
@@ -133,3 +132,5 @@ players %>% filter(debut < 1998) %>%
 # HR <- 0
 # R = -2.769 + 0.371*BB + 0.519*singles + 0.771*doubles + 1.240*triples + 1.443*HR
 # R # if A, R= 2.263; if B, R = 3.498
+
+# recommit
