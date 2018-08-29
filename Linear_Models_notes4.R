@@ -198,3 +198,13 @@ fit <- falling_object %>%
   lm(observed_distance ~ time + time_sq, data = .)
 tidy(fit)
   
+# check if the data fits the estimated parabola model using the broom augment function
+augment(fit) %>%
+  ggplot() +
+  geom_point(aes(time, y = observed_distance)) +
+  geom_line(aes(time, .fitted))
+
+# use tidy to get the coefficients and statistics
+tidy(fit, conf.int = TRUE)
+
+
